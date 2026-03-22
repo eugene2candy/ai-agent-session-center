@@ -142,7 +142,11 @@ export function registerSetupHandlers() {
     // Validate enabledClis
     const enabledClis = Array.isArray(c.enabledClis)
       ? c.enabledClis.filter(isValidCli)
-      : ['claude']
+      : []
+
+    if (enabledClis.length === 0) {
+      return { ok: false, error: 'At least one CLI must be selected' }
+    }
 
     const win = BrowserWindow.fromWebContents(event.sender)
     const send = (line: string) => win?.webContents.send('setup:install-log', line)
