@@ -33,6 +33,15 @@ describe('EVENT_TYPES', () => {
     expect(EVENT_TYPES.AGENT_TURN_COMPLETE).toBe('agent-turn-complete');
   });
 
+  it('contains Copilot event types', () => {
+    expect(EVENT_TYPES.COPILOT_SESSION_START).toBe('sessionStart');
+    expect(EVENT_TYPES.COPILOT_SESSION_END).toBe('sessionEnd');
+    expect(EVENT_TYPES.COPILOT_USER_PROMPT_SUBMITTED).toBe('userPromptSubmitted');
+    expect(EVENT_TYPES.COPILOT_PRE_TOOL_USE).toBe('preToolUse');
+    expect(EVENT_TYPES.COPILOT_POST_TOOL_USE).toBe('postToolUse');
+    expect(EVENT_TYPES.COPILOT_ERROR_OCCURRED).toBe('errorOccurred');
+  });
+
   it('has no duplicate values', () => {
     const values = Object.values(EVENT_TYPES);
     const unique = new Set(values);
@@ -145,6 +154,15 @@ describe('KNOWN_EVENTS', () => {
 
   it('contains Codex events', () => {
     expect(KNOWN_EVENTS.has('agent-turn-complete')).toBe(true);
+  });
+
+  it('contains Copilot events', () => {
+    expect(KNOWN_EVENTS.has('sessionStart')).toBe(true);
+    expect(KNOWN_EVENTS.has('sessionEnd')).toBe(true);
+    expect(KNOWN_EVENTS.has('userPromptSubmitted')).toBe(true);
+    expect(KNOWN_EVENTS.has('preToolUse')).toBe(true);
+    expect(KNOWN_EVENTS.has('postToolUse')).toBe(true);
+    expect(KNOWN_EVENTS.has('errorOccurred')).toBe(true);
   });
 });
 

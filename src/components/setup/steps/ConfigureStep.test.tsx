@@ -59,6 +59,7 @@ describe('ConfigureStep', () => {
     expect(screen.getByText('Claude Code')).toBeInTheDocument()
     expect(screen.getByText('Gemini CLI')).toBeInTheDocument()
     expect(screen.getByText('Codex')).toBeInTheDocument()
+    expect(screen.getByText('GitHub Copilot CLI')).toBeInTheDocument()
   })
 
   it('renders all hook density options', () => {

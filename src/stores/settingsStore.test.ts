@@ -5,6 +5,7 @@ const defaultPerCli = {
   claude: { ...CLI_SOUND_PROFILES.claude },
   gemini: { ...CLI_SOUND_PROFILES.gemini },
   codex: { ...CLI_SOUND_PROFILES.codex },
+  copilot: { ...CLI_SOUND_PROFILES.copilot },
   openclaw: { ...CLI_SOUND_PROFILES.openclaw },
 };
 
@@ -216,6 +217,7 @@ describe('settingsStore', () => {
       expect(soundSettings.perCli.claude.enabled).toBe(true);
       expect(soundSettings.perCli.gemini.enabled).toBe(true);
       expect(soundSettings.perCli.codex.enabled).toBe(true);
+      expect(soundSettings.perCli.copilot.enabled).toBe(true);
       expect(soundSettings.perCli.openclaw.enabled).toBe(true);
     });
 
@@ -230,6 +232,7 @@ describe('settingsStore', () => {
       expect(soundSettings.perCli.claude.actions.sessionStart).toBe('chime');
       expect(soundSettings.perCli.gemini.actions.sessionStart).toBe('ding');
       expect(soundSettings.perCli.codex.actions.sessionStart).toBe('blip');
+      expect(soundSettings.perCli.copilot.actions.sessionStart).toBe('ping');
       expect(soundSettings.perCli.openclaw.actions.sessionStart).toBe('fanfare');
     });
 

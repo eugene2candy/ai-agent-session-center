@@ -281,6 +281,7 @@ const defaultSettings: SettingsData = {
       claude: { ...CLI_SOUND_PROFILES.claude },
       gemini: { ...CLI_SOUND_PROFILES.gemini },
       codex: { ...CLI_SOUND_PROFILES.codex },
+      copilot: { ...CLI_SOUND_PROFILES.copilot },
       openclaw: { ...CLI_SOUND_PROFILES.openclaw },
     },
   },
