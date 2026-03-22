@@ -8,23 +8,33 @@
 import type { Session } from '@/types';
 
 /** Supported CLI identifiers matching SoundSettings.perCli keys */
-export type CliName = 'claude' | 'gemini' | 'codex' | 'openclaw';
+export type CliName = 'claude' | 'gemini' | 'codex' | 'copilot' | 'openclaw';
 
 /**
  * Detect which CLI a session belongs to.
- * 1. Check session.model for CLI-specific keywords
- * 2. Fallback: check event types for CLI-specific events
+ * 1. Check session source field (set by hook scripts)
+ * 2. Check session.model for CLI-specific keywords
+ * 3. Fallback: check event types for CLI-specific events
  * Returns null if the CLI cannot be determined.
  */
 export function detectCli(session: Session): CliName | null {
+  // Source-based detection (most reliable — set explicitly by hook scripts)
+  const source = (session as Record<string, unknown>).source as string | undefined;
+  if (source === 'copilot') return 'copilot';
+  if (source === 'gemini') return 'gemini';
+  if (source === 'codex') return 'codex';
+
   const model = (session.model || '').toLowerCase();
 
-  // Model-based detection (most reliable)
+  // Model-based detection
   if (model.includes('claude') || model.includes('opus') || model.includes('sonnet') || model.includes('haiku')) {
     return 'claude';
   }
   if (model.includes('gemini') || model.includes('gemma')) {
     return 'gemini';
+  }
+  if (model.includes('copilot')) {
+    return 'copilot';
   }
   if (model.includes('gpt') || model.includes('codex') || model.includes('o1') || model.includes('o3') || model.includes('o4')) {
     return 'codex';

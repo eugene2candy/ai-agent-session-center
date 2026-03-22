@@ -10,7 +10,7 @@ export interface DepCheckResult {
 
 export interface SetupConfig {
   port: number
-  enabledClis: ('claude' | 'gemini' | 'codex')[]
+  enabledClis: ('claude' | 'gemini' | 'codex' | 'copilot')[]
   hookDensity: 'high' | 'medium' | 'low'
   debug: boolean
   sessionHistoryHours: number

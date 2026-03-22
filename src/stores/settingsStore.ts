@@ -144,6 +144,32 @@ export const CLI_SOUND_PROFILES: Record<string, CliSoundConfig> = {
       subagentStop: 'cascade',
     },
   },
+  copilot: {
+    enabled: true,
+    volume: 0.7,
+    actions: {
+      sessionStart: 'ping',
+      sessionEnd: 'cascade',
+      promptSubmit: 'chime',
+      taskComplete: 'fanfare',
+      toolRead: 'click',
+      toolWrite: 'swoosh',
+      toolEdit: 'swoosh',
+      toolBash: 'ping',
+      toolGrep: 'click',
+      toolGlob: 'click',
+      toolWebFetch: 'ping',
+      toolTask: 'chime',
+      toolOther: 'click',
+      approvalNeeded: 'alarm',
+      inputNeeded: 'chime',
+      alert: 'alarm',
+      kill: 'thud',
+      archive: 'ping',
+      subagentStart: 'chirp',
+      subagentStop: 'ping',
+    },
+  },
 };
 
 export const DEFAULT_AMBIENT_SETTINGS: AmbientSettings = {

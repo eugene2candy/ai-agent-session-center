@@ -31,6 +31,7 @@ const formSchema = z.object({
   port: z.number({ error: 'Must be a number' }).int().min(1, 'Min 1').max(65535, 'Max 65535'),
   enableGemini: z.boolean(),
   enableCodex: z.boolean(),
+  enableCopilot: z.boolean(),
   hookDensity: z.enum(['high', 'medium', 'low']),
   sessionHistoryHours: z.number(),
   enablePassword: z.boolean(),
@@ -68,6 +69,7 @@ export default function ConfigureStep({ config, setConfig, onNext }: StepProps) 
       port: config.port,
       enableGemini: config.enabledClis.includes('gemini'),
       enableCodex: config.enabledClis.includes('codex'),
+      enableCopilot: config.enabledClis.includes('copilot'),
       hookDensity: config.hookDensity,
       sessionHistoryHours: config.sessionHistoryHours,
       enablePassword: false,
@@ -83,6 +85,7 @@ export default function ConfigureStep({ config, setConfig, onNext }: StepProps) 
     const clis: SetupConfig['enabledClis'] = ['claude']
     if (data.enableGemini) clis.push('gemini')
     if (data.enableCodex) clis.push('codex')
+    if (data.enableCopilot) clis.push('copilot')
 
     const cfg: SetupConfig = {
       port: data.port,
@@ -126,6 +129,10 @@ export default function ConfigureStep({ config, setConfig, onNext }: StepProps) 
             <label className={styles.checkbox}>
               <input type="checkbox" {...register('enableCodex')} />
               Codex
+            </label>
+            <label className={styles.checkbox}>
+              <input type="checkbox" {...register('enableCopilot')} />
+              GitHub Copilot CLI
             </label>
           </div>
         </div>

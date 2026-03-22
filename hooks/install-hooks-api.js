@@ -14,6 +14,7 @@ import {
   configureClaudeHooks,
   removeAllClaudeHooks,
   configureGeminiHooks,
+  configureCopilotHooks,
 } from './install-hooks-core.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -43,6 +44,13 @@ const GEMINI_DENSITY_EVENTS = {
   high: ['SessionStart', 'BeforeAgent', 'BeforeTool', 'AfterTool', 'AfterAgent', 'SessionEnd', 'Notification'],
   medium: ['SessionStart', 'BeforeAgent', 'AfterAgent', 'SessionEnd', 'Notification'],
   low: ['SessionStart', 'AfterAgent', 'SessionEnd'],
+};
+
+// Copilot events by density
+const COPILOT_DENSITY_EVENTS = {
+  high: ['sessionStart', 'sessionEnd', 'userPromptSubmitted', 'preToolUse', 'postToolUse', 'errorOccurred'],
+  medium: ['sessionStart', 'sessionEnd', 'userPromptSubmitted', 'preToolUse', 'postToolUse'],
+  low: ['sessionStart', 'sessionEnd', 'userPromptSubmitted'],
 };
 
 const HOOK_SOURCE = 'ai-agent-session-center';
@@ -81,6 +89,7 @@ export async function installHooks({
   const hooksDir = projectRoot ? join(projectRoot, 'hooks') : __dirname;
   const EVENTS = DENSITY_EVENTS[density];
   const GEMINI_EVENTS = GEMINI_DENSITY_EVENTS[density] || GEMINI_DENSITY_EVENTS.medium;
+  const COPILOT_EVENTS = COPILOT_DENSITY_EVENTS[density] || COPILOT_DENSITY_EVENTS.medium;
 
   const HOOK_SCRIPT = isWindows ? 'dashboard-hook.ps1' : 'dashboard-hook.sh';
   const HOOKS_DEST_DIR = join(homedir(), '.claude', 'hooks');
@@ -253,6 +262,37 @@ export async function installHooks({
       }
     } catch (e) {
       log(`Codex hook registration: ${e.message}`);
+    }
+  }
+
+  // Deploy Copilot hook
+  if (enabledClis.includes('copilot')) {
+    const copilotSrc = join(hooksDir, 'dashboard-hook-copilot.sh');
+    const copilotHooksDir = join(homedir(), '.copilot', 'hooks');
+    const copilotDest = join(copilotHooksDir, 'dashboard-hook.sh');
+    if (existsSync(copilotSrc)) {
+      mkdirSync(copilotHooksDir, { recursive: true });
+      deployHookScript(copilotSrc, copilotDest, false);
+      log(`Deployed dashboard-hook-copilot.sh -> ${copilotDest}`);
+    } else {
+      log(`Copilot hook script not found: ${copilotSrc}`);
+    }
+
+    // Register in ~/.copilot/hooks/hooks.json
+    const copilotHooksJsonPath = join(copilotHooksDir, 'hooks.json');
+    try {
+      let hooksJson;
+      try { hooksJson = JSON.parse(readFileSync(copilotHooksJsonPath, 'utf8')); } catch { hooksJson = { version: 1, hooks: {} }; }
+      const cChanged = configureCopilotHooks(hooksJson, COPILOT_EVENTS, HOOK_SOURCE);
+      if (cChanged) {
+        mkdirSync(copilotHooksDir, { recursive: true });
+        atomicWriteJSON(copilotHooksJsonPath, hooksJson);
+        log(`Registered ${cChanged} Copilot hook events`);
+      } else {
+        log('Copilot hooks already registered');
+      }
+    } catch (e) {
+      log(`Copilot hook registration: ${e.message}`);
     }
   }
 

@@ -1,7 +1,7 @@
 {
   "name": "ai-agent-session-center",
   "version": "2.9.7",
-  "description": "A real-time dashboard for monitoring AI agent sessions (Claude Code, Gemini CLI, Codex) with 3D visualization",
+  "description": "A real-time dashboard for monitoring AI agent sessions (Claude Code, Gemini CLI, Codex, GitHub Copilot CLI) with 3D visualization",
   "type": "module",
   "main": "server/index.ts",
   "bin": {
@@ -39,6 +39,8 @@
     "claude-code",
     "gemini-cli",
     "codex",
+    "copilot-cli",
+    "github-copilot",
     "ai-agent",
     "dashboard",
     "monitoring",

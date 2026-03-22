@@ -137,3 +137,27 @@ export function configureGeminiHooks(settings, events, hookSource) {
   }
   return added;
 }
+
+// Configure Copilot hooks in a hooks.json object.
+// Copilot uses { version: 1, hooks: { eventName: [{ type, bash }] } }
+// Returns the number of events added.
+export function configureCopilotHooks(hooksJson, events, hookSource) {
+  if (!hooksJson.hooks) hooksJson.hooks = {};
+
+  let added = 0;
+  for (const event of events) {
+    if (!hooksJson.hooks[event]) hooksJson.hooks[event] = [];
+    const has = hooksJson.hooks[event].some(h =>
+      h.bash?.includes('dashboard-hook') || h._source === hookSource
+    );
+    if (!has) {
+      hooksJson.hooks[event].push({
+        _source: hookSource,
+        type: 'command',
+        bash: `~/.copilot/hooks/dashboard-hook.sh ${event}`,
+      });
+      added++;
+    }
+  }
+  return added;
+}
