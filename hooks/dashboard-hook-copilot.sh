@@ -30,7 +30,7 @@ esac
 
 # ── Session/CWD from payload or environment ──
 SESSION_ID=$(echo "$INPUT" | jq -r '.sessionId // empty' 2>/dev/null)
-[ -z "$SESSION_ID" ] && SESSION_ID="copilot-$$-${PPID}"
+[ -z "$SESSION_ID" ] && SESSION_ID="copilot-${PPID}"
 CWD=$(echo "$INPUT" | jq -r '.cwd // empty' 2>/dev/null)
 [ -z "$CWD" ] && CWD="$(pwd)"
 

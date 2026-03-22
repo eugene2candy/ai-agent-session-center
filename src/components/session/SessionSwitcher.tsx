@@ -33,7 +33,7 @@ function getCliBadge(session: Session): string | null {
   if (cmd.startsWith('claude') || cmd.includes('/claude')) return 'CLAUDE';
   if (cmd.startsWith('codex') || cmd.includes('/codex')) return 'CODEX';
   if (cmd.startsWith('gemini') || cmd.includes('/gemini')) return 'GEMINI';
-  if (cmd.startsWith('copilot') || cmd.includes('/copilot') || cmd.includes('ghcs') || cmd.includes('github-copilot')) return 'COPILOT';
+  if (cmd.startsWith('copilot') || cmd.includes('/copilot') || cmd.startsWith('ghcs') || cmd.includes('/ghcs') || cmd.includes('github-copilot-cli')) return 'COPILOT';
   if (cmd.startsWith('aider') || cmd.includes('/aider')) return 'AIDER';
   if (session.backendType) {
     const bt = session.backendType.toLowerCase();
