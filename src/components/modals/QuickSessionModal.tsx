@@ -22,6 +22,8 @@ const DEFAULT_COMMANDS: string[] = [
   'gemini',
   'gemini --yolo',
   'codex',
+  'copilot',
+  'ghcs',
   'aider',
 ];
 

@@ -29,14 +29,19 @@ const passwordSchema = z.string()
 
 const formSchema = z.object({
   port: z.number({ error: 'Must be a number' }).int().min(1, 'Min 1').max(65535, 'Max 65535'),
+  enableClaude: z.boolean(),
   enableGemini: z.boolean(),
   enableCodex: z.boolean(),
+  enableCopilot: z.boolean(),
   hookDensity: z.enum(['high', 'medium', 'low']),
   sessionHistoryHours: z.number(),
   enablePassword: z.boolean(),
   password: z.string().optional(),
   confirmPassword: z.string().optional(),
 }).superRefine((data, ctx) => {
+  if (!data.enableClaude && !data.enableGemini && !data.enableCodex && !data.enableCopilot) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Select at least one CLI', path: ['enableClaude'] })
+  }
   if (data.enablePassword) {
     const pw = data.password ?? ''
     const result = passwordSchema.safeParse(pw)
@@ -66,8 +71,10 @@ export default function ConfigureStep({ config, setConfig, onNext }: StepProps) 
     resolver: zodResolver(formSchema),
     defaultValues: {
       port: config.port,
+      enableClaude: config.enabledClis.includes('claude'),
       enableGemini: config.enabledClis.includes('gemini'),
       enableCodex: config.enabledClis.includes('codex'),
+      enableCopilot: config.enabledClis.includes('copilot'),
       hookDensity: config.hookDensity,
       sessionHistoryHours: config.sessionHistoryHours,
       enablePassword: false,
@@ -80,9 +87,11 @@ export default function ConfigureStep({ config, setConfig, onNext }: StepProps) 
   const enablePassword = watch('enablePassword')
 
   const onSubmit = async (data: FormValues) => {
-    const clis: SetupConfig['enabledClis'] = ['claude']
+    const clis: SetupConfig['enabledClis'] = []
+    if (data.enableClaude) clis.push('claude')
     if (data.enableGemini) clis.push('gemini')
     if (data.enableCodex) clis.push('codex')
+    if (data.enableCopilot) clis.push('copilot')
 
     const cfg: SetupConfig = {
       port: data.port,
@@ -115,8 +124,8 @@ export default function ConfigureStep({ config, setConfig, onNext }: StepProps) 
         <div className={styles.fieldGroup}>
           <label className={styles.fieldLabel}>AI CLIs to Monitor</label>
           <div className={styles.checkboxGroup}>
-            <label className={`${styles.checkbox} ${styles.disabled}`}>
-              <input type="checkbox" checked disabled />
+            <label className={styles.checkbox}>
+              <input type="checkbox" {...register('enableClaude')} />
               Claude Code
             </label>
             <label className={styles.checkbox}>
@@ -127,10 +136,13 @@ export default function ConfigureStep({ config, setConfig, onNext }: StepProps) 
               <input type="checkbox" {...register('enableCodex')} />
               Codex
             </label>
+            <label className={styles.checkbox}>
+              <input type="checkbox" {...register('enableCopilot')} />
+              GitHub Copilot CLI
+            </label>
           </div>
+          {errors.enableClaude && <div className={styles.fieldError}>{errors.enableClaude.message}</div>}
         </div>
-
-        {/* Hook Density */}
         <div className={styles.fieldGroup}>
           <label className={styles.fieldLabel}>Hook Density</label>
           <div className={styles.radioGroup}>

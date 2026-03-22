@@ -14,7 +14,7 @@ const getHooksRoot = () => app.isPackaged ? process.resourcesPath : PROJECT_ROOT
 
 // Validation constants — never accept these from renderer input
 const VALID_DENSITIES = ['high', 'medium', 'low'] as const
-const VALID_CLIS = ['claude', 'gemini', 'codex'] as const
+const VALID_CLIS = ['claude', 'gemini', 'codex', 'copilot'] as const
 const MIN_PORT = 1
 const MAX_PORT = 65535
 
@@ -142,7 +142,11 @@ export function registerSetupHandlers() {
     // Validate enabledClis
     const enabledClis = Array.isArray(c.enabledClis)
       ? c.enabledClis.filter(isValidCli)
-      : ['claude']
+      : []
+
+    if (enabledClis.length === 0) {
+      return { ok: false, error: 'At least one CLI must be selected' }
+    }
 
     const win = BrowserWindow.fromWebContents(event.sender)
     const send = (line: string) => win?.webContents.send('setup:install-log', line)

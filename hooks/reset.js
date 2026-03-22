@@ -25,6 +25,8 @@ const step = (n, total, label) => console.log(`\n${CYAN}[${n}/${total}]${RESET} 
 const SETTINGS_PATH = join(homedir(), '.claude', 'settings.json');
 const GEMINI_SETTINGS_PATH = join(homedir(), '.gemini', 'settings.json');
 const CODEX_CONFIG_PATH = join(homedir(), '.codex', 'config.toml');
+const COPILOT_HOOKS_DIR = join(homedir(), '.copilot', 'hooks');
+const COPILOT_HOOKS_JSON = join(homedir(), '.copilot', 'hooks', 'hooks.json');
 const HOOKS_DIR = join(homedir(), '.claude', 'hooks');
 const GEMINI_HOOKS_DIR = join(homedir(), '.gemini', 'hooks');
 const CODEX_HOOKS_DIR = join(homedir(), '.codex', 'hooks');
@@ -45,6 +47,11 @@ const ALL_EVENTS = [
 const GEMINI_ALL_EVENTS = [
   'SessionStart', 'BeforeAgent', 'BeforeTool', 'AfterTool',
   'AfterAgent', 'SessionEnd', 'Notification'
+];
+
+const COPILOT_ALL_EVENTS = [
+  'sessionStart', 'sessionEnd', 'userPromptSubmitted',
+  'preToolUse', 'postToolUse', 'errorOccurred'
 ];
 
 const TOTAL_STEPS = 6;
@@ -126,6 +133,21 @@ const codexHook = join(CODEX_HOOKS_DIR, 'dashboard-hook.sh');
 if (existsSync(codexHook)) {
   copyFileSync(codexHook, join(backupPath, 'codex-dashboard-hook.sh'));
   ok('Backed up Codex dashboard-hook.sh');
+  backedUp++;
+}
+
+// Backup ~/.copilot/hooks/hooks.json
+if (existsSync(COPILOT_HOOKS_JSON)) {
+  copyFileSync(COPILOT_HOOKS_JSON, join(backupPath, 'copilot-hooks.json'));
+  ok('Backed up ~/.copilot/hooks/hooks.json');
+  backedUp++;
+}
+
+// Backup Copilot hook script
+const copilotHook = join(COPILOT_HOOKS_DIR, 'dashboard-hook.sh');
+if (existsSync(copilotHook)) {
+  copyFileSync(copilotHook, join(backupPath, 'copilot-dashboard-hook.sh'));
+  ok('Backed up Copilot dashboard-hook.sh');
   backedUp++;
 }
 
@@ -252,6 +274,44 @@ if (existsSync(CODEX_CONFIG_PATH)) {
   info('Codex config.toml not found');
 }
 
+// Copilot (hooks.json — remove our entries from the hooks object)
+// SAFETY: Only removes hook entries matching our _source marker or dashboard-hook bash command.
+//         All other Copilot hooks are preserved untouched.
+if (existsSync(COPILOT_HOOKS_JSON)) {
+  try {
+    const hooksJson = JSON.parse(readFileSync(COPILOT_HOOKS_JSON, 'utf8'));
+    let removed = 0;
+
+    if (hooksJson.hooks) {
+      for (const event of COPILOT_ALL_EVENTS) {
+        if (!hooksJson.hooks[event]) continue;
+        const before = hooksJson.hooks[event].length;
+        hooksJson.hooks[event] = hooksJson.hooks[event].filter(h => {
+          const isOurs = h._source === HOOK_SOURCE || (h.bash && h.bash.includes(HOOK_PATTERN));
+          if (isOurs) ok(`[Copilot] Removing hook for ${event}`);
+          return !isOurs;
+        });
+        if (hooksJson.hooks[event].length === 0) {
+          delete hooksJson.hooks[event];
+        }
+        removed += before - (hooksJson.hooks[event]?.length ?? 0);
+      }
+    }
+
+    writeFileSync(COPILOT_HOOKS_JSON, JSON.stringify(hooksJson, null, 2) + '\n');
+
+    if (removed > 0) {
+      ok(`[Copilot] ${removed} dashboard hook(s) removed from hooks.json`);
+    } else {
+      info('[Copilot] No dashboard hooks found in hooks.json');
+    }
+  } catch (e) {
+    warn(`Could not parse Copilot hooks.json: ${e.message}`);
+  }
+} else {
+  info('Copilot hooks.json not found');
+}
+
 // ═══════════════════════════════════════════════
 // STEP 3: Remove deployed hook scripts
 // ═══════════════════════════════════════════════
@@ -290,6 +350,9 @@ safeRemoveHookScript(join(GEMINI_HOOKS_DIR, 'dashboard-hook.sh'), 'Gemini dashbo
 
 // Codex hook
 safeRemoveHookScript(join(CODEX_HOOKS_DIR, 'dashboard-hook.sh'), 'Codex dashboard-hook.sh');
+
+// Copilot hook
+safeRemoveHookScript(join(COPILOT_HOOKS_DIR, 'dashboard-hook.sh'), 'Copilot dashboard-hook.sh');
 
 // ═══════════════════════════════════════════════
 // STEP 4: Clean local data

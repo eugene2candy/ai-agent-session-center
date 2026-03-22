@@ -140,16 +140,24 @@ let port;
 // 2. AI CLI selection
 const cliOptions = [
   { label: `Claude Code only`, value: ['claude'] },
+  { label: `Gemini CLI only`, value: ['gemini'] },
+  { label: `Codex CLI only`, value: ['codex'] },
+  { label: `GitHub Copilot CLI only`, value: ['copilot'] },
   { label: `Claude Code + Gemini CLI`, value: ['claude', 'gemini'] },
   { label: `Claude Code + Codex CLI`, value: ['claude', 'codex'] },
-  { label: `All (Claude + Gemini + Codex)`, value: ['claude', 'gemini', 'codex'] },
+  { label: `Claude Code + GitHub Copilot CLI`, value: ['claude', 'copilot'] },
+  { label: `All (Claude + Gemini + Codex + Copilot)`, value: ['claude', 'gemini', 'codex', 'copilot'] },
 ];
 const currentCliIdx = (() => {
   const ec = existing.enabledClis || ['claude'];
   if (ec.length === 1 && ec[0] === 'claude') return 0;
-  if (ec.length === 2 && ec.includes('gemini')) return 1;
-  if (ec.length === 2 && ec.includes('codex')) return 2;
-  if (ec.length === 3) return 3;
+  if (ec.length === 1 && ec[0] === 'gemini') return 1;
+  if (ec.length === 1 && ec[0] === 'codex') return 2;
+  if (ec.length === 1 && ec[0] === 'copilot') return 3;
+  if (ec.length === 2 && ec.includes('claude') && ec.includes('gemini')) return 4;
+  if (ec.length === 2 && ec.includes('claude') && ec.includes('codex')) return 5;
+  if (ec.length === 2 && ec.includes('claude') && ec.includes('copilot')) return 6;
+  if (ec.length >= 4) return 7;
   return 0;
 })();
 const cliChoice = await choose(2, TOTAL, 'Which AI CLIs do you want to hook?', cliOptions, currentCliIdx);

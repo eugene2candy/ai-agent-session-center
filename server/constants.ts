@@ -27,6 +27,13 @@ export const EVENT_TYPES = {
   AFTER_AGENT: 'AfterAgent',
   // Codex events
   AGENT_TURN_COMPLETE: 'agent-turn-complete',
+  // Copilot events (native camelCase names — mapped to PascalCase in hook script)
+  COPILOT_SESSION_START: 'sessionStart',
+  COPILOT_SESSION_END: 'sessionEnd',
+  COPILOT_USER_PROMPT_SUBMITTED: 'userPromptSubmitted',
+  COPILOT_PRE_TOOL_USE: 'preToolUse',
+  COPILOT_POST_TOOL_USE: 'postToolUse',
+  COPILOT_ERROR_OCCURRED: 'errorOccurred',
 } as const;
 
 // All Claude hook events (used for hook density configuration)
@@ -47,7 +54,7 @@ export const ALL_CLAUDE_HOOK_EVENTS: string[] = [
   EVENT_TYPES.SESSION_END,
 ];
 
-// Known event types set (all transports — Claude, Gemini, Codex)
+// Known event types set (all transports — Claude, Gemini, Codex, Copilot)
 export const KNOWN_EVENTS: Set<string> = new Set([
   ...ALL_CLAUDE_HOOK_EVENTS,
   EVENT_TYPES.BEFORE_AGENT,
@@ -55,6 +62,12 @@ export const KNOWN_EVENTS: Set<string> = new Set([
   EVENT_TYPES.AFTER_TOOL,
   EVENT_TYPES.AFTER_AGENT,
   EVENT_TYPES.AGENT_TURN_COMPLETE,
+  EVENT_TYPES.COPILOT_SESSION_START,
+  EVENT_TYPES.COPILOT_SESSION_END,
+  EVENT_TYPES.COPILOT_USER_PROMPT_SUBMITTED,
+  EVENT_TYPES.COPILOT_PRE_TOOL_USE,
+  EVENT_TYPES.COPILOT_POST_TOOL_USE,
+  EVENT_TYPES.COPILOT_ERROR_OCCURRED,
 ]);
 
 // Hook density presets — which events to register at each density level

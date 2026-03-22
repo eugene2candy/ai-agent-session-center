@@ -192,4 +192,51 @@ export function ensureHooksInstalled(config) {
       log.debug('server', `Codex hook registration skipped: ${e.message}`);
     }
   }
+
+  // ── GitHub Copilot CLI hooks ──
+  if (enabledClis.includes('copilot')) {
+    const src = join(__dirname, '..', 'hooks', 'dashboard-hook-copilot.sh');
+    const hooksDir = join(homedir(), '.copilot', 'hooks');
+    const dest = join(hooksDir, 'dashboard-hook.sh');
+    const hooksJsonPath = join(homedir(), '.copilot', 'hooks', 'hooks.json');
+
+    syncHookFile(src, dest, hooksDir, false, 'copilot');
+
+    // Copilot uses hooks.json with per-event bash commands
+    const copilotDensityEvents = {
+      high: ['sessionStart', 'sessionEnd', 'userPromptSubmitted', 'preToolUse', 'postToolUse', 'errorOccurred'],
+      medium: ['sessionStart', 'sessionEnd', 'userPromptSubmitted', 'preToolUse', 'postToolUse'],
+      low: ['sessionStart', 'sessionEnd', 'userPromptSubmitted'],
+    };
+    const copilotEvents = copilotDensityEvents[density] || copilotDensityEvents.medium;
+
+    try {
+      let hooksJson;
+      try { hooksJson = JSON.parse(readFileSync(hooksJsonPath, 'utf8')); } catch { hooksJson = { version: 1, hooks: {} }; }
+      if (!hooksJson.hooks) hooksJson.hooks = {};
+
+      let changed = false;
+      for (const event of copilotEvents) {
+        if (!hooksJson.hooks[event]) hooksJson.hooks[event] = [];
+        const hasHook = hooksJson.hooks[event].some(h =>
+          h.bash?.includes(hookPattern) || h._source === hookSource
+        );
+        if (!hasHook) {
+          hooksJson.hooks[event].push({
+            _source: hookSource,
+            type: 'command',
+            bash: `~/.copilot/hooks/dashboard-hook.sh ${event}`,
+          });
+          changed = true;
+        }
+      }
+      if (changed) {
+        mkdirSync(hooksDir, { recursive: true });
+        atomicWriteJSON(hooksJsonPath, hooksJson);
+        log.info('server', `Registered ${copilotEvents.length} Copilot hook events (density: ${density})`);
+      }
+    } catch (e) {
+      log.debug('server', `Copilot hook registration skipped: ${e.message}`);
+    }
+  }
 }

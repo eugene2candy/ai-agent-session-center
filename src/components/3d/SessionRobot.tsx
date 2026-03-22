@@ -41,6 +41,7 @@ const CLI_BADGES: Record<string, CliBadge> = {
   claude: { letter: 'C', color: '#00f0ff' },
   gemini: { letter: 'G', color: '#4285f4' },
   codex: { letter: 'X', color: '#10a37f' },
+  copilot: { letter: 'P', color: '#6e40c9' },
   openclaw: { letter: 'O', color: '#ff6b2b' },
 };
 

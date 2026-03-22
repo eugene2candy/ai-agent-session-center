@@ -21,6 +21,7 @@ const CLI_TABS = [
   { id: 'claude', label: 'Claude' },
   { id: 'gemini', label: 'Gemini' },
   { id: 'codex', label: 'Codex' },
+  { id: 'copilot', label: 'Copilot' },
   { id: 'openclaw', label: 'OpenClaw' },
 ] as const;
 
