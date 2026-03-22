@@ -13,7 +13,7 @@
     "start": "tsx server/index.ts",
     "start:no-open": "tsx server/index.ts --no-open",
     "preview": "vite preview",
-    "setup": "npm install --ignore-scripts && node hooks/setup-wizard.js && tsx server/index.ts",
+    "setup": "npm install --ignore-scripts && npm rebuild better-sqlite3 && (npm rebuild node-pty || true) && node hooks/setup-wizard.js && tsx server/index.ts",
     "debug": "tsx server/index.ts --debug",
     "reset": "node hooks/reset.js",
     "install-hooks": "node hooks/install-hooks.js",
